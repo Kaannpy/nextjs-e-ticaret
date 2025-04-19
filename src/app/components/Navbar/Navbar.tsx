@@ -11,12 +11,27 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useRouter } from "next/navigation"; // App Router kullanıyorsak
 
 export default function Navbar() {
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const router = useRouter();
   const [mobileMenuOpen, setmobileMenuOpen] = useState<boolean>(false);
 
   const toggleMenu = () => {
     setmobileMenuOpen(!mobileMenuOpen);
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // tip guvenliğği için bu kadar uzun yazdık any de diyebilirdik ama type güvenliği ortadan kalkardı
+    setSearchQuery(e.target.value);
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery) {
+      router.push(`/products/search?name=${searchQuery}`);
+    }
   };
   return (
     <>
@@ -42,6 +57,24 @@ export default function Navbar() {
             <Link className="hover:border-b  hover:border-blue-600" href={"/"}>
               Products
             </Link>
+          </div>
+
+          <div className="hidden md:flex items-center">
+            <form onSubmit={handleSearchSubmit} className="flex space-x-2">
+              <input
+                type="text"
+                placeholder="search product ..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+                className="w-64 p-2 rounded-3xl"
+              />
+              <button
+                type="submit"
+                className="bg-blue-600 text-white px-4 py-2 rounded-4xl flex gap-20"
+              >
+                Search
+              </button>
+            </form>
           </div>
 
           <div className="md:hidden">

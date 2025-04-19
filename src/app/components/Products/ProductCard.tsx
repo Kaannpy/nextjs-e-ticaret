@@ -32,16 +32,20 @@ export default function ProductCard(props: ProductCardProps) {
     alert("Sepete Eklendi");
   };
 
+  const payCheck = () => {
+    alert("Ödeme Ekranına yönlendiriliyorsunuz....");
+  };
+
   return (
     <Card className=" max-w-85 flex flex-col bg-white rounded-lg shadow-lg overflow-hidden max-h-[700px]  relative">
-      {props.badge && (
+      {props.badge ? (
         <Badge
           variant="destructive"
           className="  absolute top-0 right-0 z-20 rounded-pill px-3 py-1 text-sm"
         >
           {props.badge}
         </Badge>
-      )}
+      ) : null}
 
       <CardHeader className="p-2">
         <CardTitle>{props.title}</CardTitle>
@@ -68,7 +72,7 @@ export default function ProductCard(props: ProductCardProps) {
             <Button onClick={addBasket} className="w-1/2">
               Sepete Ekle
             </Button>
-            <Button className="w-1/2" variant="outline">
+            <Button onClick={payCheck} className="w-1/2" variant="outline">
               Ödeme
             </Button>
           </div>
