@@ -28,7 +28,7 @@ export default function Navbar() {
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault(); // Formun varsayılan davranışı sayfayı yenilemekti. Bu satır bunu engelliyor.
     if (searchQuery) {
       router.push(`/products/search?name=${searchQuery}`);
     }

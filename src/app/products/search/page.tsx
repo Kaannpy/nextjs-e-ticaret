@@ -14,7 +14,7 @@ export default function SearchPage() {
   useEffect(() => {
     const fetchProducts = async () => {
       // Ürünleri API'den çekmek için bir async fonksiyon
-      const params = new URLSearchParams(window.location.search); // apple yazdık mesela name=apple oldu
+      const params = new URLSearchParams(); // apple yazdık mesela name=apple oldu
       const searchTerm = params.get("name") || ""; // bu apple aldık
       setQuery(searchTerm); // ve kaydetttik
 
