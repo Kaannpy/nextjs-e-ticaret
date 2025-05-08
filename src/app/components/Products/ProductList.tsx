@@ -1,3 +1,4 @@
+import { describe } from "node:test";
 import ProductCard from "./ProductCard";
 
 export default function ProductList() {
@@ -61,6 +62,14 @@ export default function ProductList() {
       title: "Macbook Pro",
       description: "",
       price: "75.000 TL",
+    },
+
+    {
+      image:
+        "https://res.cloudinary.com/dmgqswsdv/image/upload/v1746093896/products/qqcmklwwmns8fxsrv4rx.jpg",
+      title: "kaan pey",
+      description: "yakısıklı",
+      price: "pahabiçilemez",
     },
   ];
 

@@ -5,37 +5,38 @@ import ProductCard from "@/app/components/Products/ProductCard"; // Ürün kartl
 
 export default function SearchPage() {
   const [query, setQuery] = useState(""); // aramaları almak için
-  const [products, setProducts] = useState<any[]>([]);
-
-  // [] veriyi tutar ilk değer boş olan 2.si ise değiştiren fonk
-  // Ürünlerin tutuyor
-  const [loading, setLoading] = useState(false); // Yüklenme durumunu tutuyor
+  const [products, setProducts] = useState<any[]>([]); // Ürün listesi
+  const [loading, setLoading] = useState(false); // Yüklenme durumu
 
   useEffect(() => {
+    // Arama terimini localStorage'a kaydediyoruz
     const fetchProducts = async () => {
-      // Ürünleri API'den çekmek için bir async fonksiyon
-      const params = new URLSearchParams(); // apple yazdık mesela name=apple oldu
-      const searchTerm = params.get("name") || ""; // bu apple aldık
-      setQuery(searchTerm); // ve kaydetttik
+      // window.location.search ile URL'deki parametreyi alıyoruz
+      const searchParams = new URLSearchParams(window.location.search);
+      const searchTerm = searchParams.get("name") || ""; // 'name' parametresini alıyoruz
+      setQuery(searchTerm); // Query parametresini state'e kaydediyoruz
 
       if (searchTerm.length > 0) {
-        setLoading(true);
+        setLoading(true); // Yükleniyor durumunu başlatıyoruz
         try {
           const response = await fetch(
             `/api/products/search?name=${searchTerm}`
           );
           const data = await response.json();
-          setProducts(data);
+          console.log("apiden gelen ürünler", data); // API'den gelen veriyi alıyoruz
+          setProducts(data); // Ürünleri state'e kaydediyoruz
         } catch (error) {
           console.error("Arama sırasında hata oluştu:", error);
         } finally {
-          setLoading(false);
+          setLoading(false); // Yüklenme durumunu bitiriyoruz
         }
+      } else {
+        setProducts([]); // Arama terimi boşsa ürünleri temizliyoruz
       }
     };
 
-    fetchProducts();
-  }, [window.location.search]); //urldeki girdigimiz değeleri güncellemek için  yeni arama oto yapmak
+    fetchProducts(); // fetchProducts fonksiyonunu çağırıyoruz
+  }, [window.location.search]); // URL değiştiğinde useEffect yeniden çalışacak
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">

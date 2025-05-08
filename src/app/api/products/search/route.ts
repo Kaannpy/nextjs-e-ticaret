@@ -10,7 +10,8 @@ export async function GET(req: Request) {
     await connectToDatabase();
 
     const { searchParams } = new URL(req.url); // urldena parametriyi aldık
-    const name = searchParams.get("name")?.toLowerCase();  // name parametresini çektik
+    const name = searchParams.get("name")?.toLowerCase();
+    console.log("aradıgımız sey",name);  // name parametresini çektik
 
     let products;
     if (name) {

@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import nc from "next-connect";
 import multer from "multer";
 import streamifier from "streamifier";
-import cloudinary from "cloudinary";
+import cloudinary, { UploadApiResponse } from "cloudinary";
 
 // Cloudinary yapılandırması
 cloudinary.v2.config({
@@ -12,7 +12,7 @@ cloudinary.v2.config({
 });
 
 // Multer bellekte geçici depolama kullanıyor
-const upload = multer({ storage: multer.memoryStorage() });  // RAMDE buffer olarak tutuyoruz direk cloudinary yollicaz zaten
+const upload = multer({ storage: multer.memoryStorage() });  // RAM'de buffer olarak tutuyoruz, doğrudan Cloudinary'ye göndereceğiz
 
 // API route handler
 const handler = nc<NextApiRequest, NextApiResponse>({
@@ -31,9 +31,9 @@ const handler = nc<NextApiRequest, NextApiResponse>({
 });
 
 // Multer middleware (tek dosya, field adı: file)
-handler.use(upload.single("file"));
+handler.use(upload.single("file"));  // Bu, sadece tek dosya yüklemeye izin verir, field adı 'file' olmalı
 
-// Tip genişletilerek multer dosyasını kabul edecek şekilde
+// Fotoğrafı Cloudinary'ye yükleyip URL'yi döndüren ve ürünü ekleyen POST işlemi
 handler.post(
   async (
     req: NextApiRequest & { file: Express.Multer.File },
@@ -46,18 +46,31 @@ handler.post(
     }
 
     try {
-      const result = await new Promise((resolve, reject) => {
+      // Cloudinary'ye fotoğrafı yükleme
+      const result: UploadApiResponse = await new Promise((resolve, reject) => {
         const uploadStream = cloudinary.v2.uploader.upload_stream(
-          { folder: "products" },
+          { folder: "products" },  // Fotoğrafın yükleneceği klasör adı
           (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
+            if (error) {
+              reject(error); // Yükleme sırasında hata oluşursa reject edilir
+            } else {
+              if (result) {
+                resolve(result); // Yükleme başarılı olursa result döndürülür
+              } else {
+                reject(new Error("Cloudinary yükleme sonucu undefined döndü")); // Hata durumunda reject
+              }
+            }
           }
         );
+
+        // Multer'ın buffer'ını stream'e dönüştürüp Cloudinary'ye gönderiyoruz
         streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
       });
 
-      return res.status(200).json({ message: "Yüklendi", result });
+      // Cloudinary'den dönen güvenli URL
+      const imageUrl = result.secure_url;  // Fotoğrafın URL'si
+
+      return res.status(200).json({ message: "Yüklendi", imageUrl });
     } catch (error) {
       console.error("Yükleme hatası:", error);
       return res.status(500).json({ error: "Yükleme başarısız oldu" });
@@ -65,7 +78,7 @@ handler.post(
   }
 );
 
-// Multer ile çalışmak için bodyParser kapatılıyor
+// Multer ile çalışmak için bodyParser'ı kapatıyoruz
 export const config = {
   api: {
     bodyParser: false,
